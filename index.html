@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Apple M 系列芯片对比</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-gradient: linear-gradient(135deg, #0f1629 0%, #0a0e1a 50%, #0d1117 100%);
+      --card: rgba(22, 27, 45, 0.8);
+      --card-hover: rgba(28, 35, 58, 0.9);
+      --card-border: rgba(255, 255, 255, 0.06);
+      --muted: #8b95a5;
+      --text: #f0f4ff;
+      --text-secondary: #c5cdd8;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --cyan: #22d3ee;
+      --pink: #ec4899;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      background-image: var(--bg-gradient);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      padding: 40px 24px 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    h1 {
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px 64px;
+    }
+
+    @media (min-width: 768px) {
+      header { padding: 56px 40px 32px; }
+      .container { padding: 0 32px 80px; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    @media (min-width: 768px) {
+      .card { padding: 24px; margin-bottom: 20px; }
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h3 .icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .icon-cpu { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); }
+    .icon-gpu { background: linear-gradient(135deg, var(--pink) 0%, #f472b6 100%); }
+    .icon-table { background: linear-gradient(135deg, var(--cyan) 0%, #67e8f9 100%); }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Charts */
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .chart-inner {
+      width: 100%;
+      /* Height set dynamically via JS based on data count */
+      min-height: 300px;
+    }
+
+    canvas {
+      width: 100% !important;
+    }
+
+    /* Chip count badge */
+    .chip-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 20px;
+      padding: 0 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -20px;
+      padding: 0 20px;
+    }
+
+    @media (min-width: 768px) {
+      .table-wrapper { margin: 0; padding: 0; }
+    }
+
+    table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    /* Product table - no horizontal scroll needed */
+    .product-table-wrapper {
+      overflow-x: visible;
+      margin: 0;
+      padding: 0;
+    }
+
+    .product-table-wrapper table {
+      min-width: auto;
+    }
+
+    .product-table-wrapper td {
+      white-space: normal;
+      line-height: 1.6;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      background: rgba(15, 20, 35, 0.95);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .approx {
+      color: var(--warning);
+    }
+
+    /* Badge styles for chip tiers */
+    .chip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tier-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tier-base { background: var(--muted); }
+    .tier-pro { background: var(--accent); }
+    .tier-max { background: var(--cyan); }
+    .tier-ultra { background: var(--pink); }
+
+    /* Score cards for mobile */
+    .score-cards {
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      .score-table-wrapper {
+        display: none;
+      }
+      .score-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    .score-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .score-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .score-card-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .score-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-item-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .score-item-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .score-item-value.approx {
+      color: var(--warning);
+    }
+
+    .score-card-meta {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .score-card-meta span {
+      display: block;
+    }
+
+    /* Notes section */
+    .notes {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+    }
+
+    .notes-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .notes-list {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .notes-list div {
+      position: relative;
+      padding-left: 16px;
+      margin-bottom: 4px;
+    }
+
+    .notes-list div::before {
+      content: '•';
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    @media (max-width: 767px) {
+      .notes {
+        padding: 14px;
+        margin-top: 12px;
+      }
+      .notes-list {
+        font-size: 11px;
+        line-height: 1.7;
+      }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.05s; }
+    .card:nth-child(3) { animation-delay: 0.1s; }
+    .card:nth-child(4) { animation-delay: 0.15s; }
+    .card:nth-child(5) { animation-delay: 0.2s; }
+    .card:nth-child(6) { animation-delay: 0.25s; }
+
+    /* Scrollbar styling */
+    .table-wrapper::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">M</div>
+    </div>
+    <h1>Apple M 系列芯片对比</h1>
+    <p class="subtitle">Geekbench 6 跑分数据 · M1 – M5 全系列</p>
+  </header>
+
+  <main class="container">
+    <!-- Filters -->
+    <div class="card">
+      <div class="filters">
+        <div class="filter-group">
+          <div class="filter-label">芯片系列</div>
+          <div class="filter-pills" id="filterTier">
+            <button class="pill active" data-value="all">全部</button>
+            <button class="pill" data-value="base">基础版</button>
+            <button class="pill" data-value="pro">Pro</button>
+            <button class="pill" data-value="max">Max</button>
+            <button class="pill" data-value="ultra">Ultra</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-label">排序方式</div>
+          <div class="filter-pills" id="sortMode">
+            <button class="pill active" data-value="score">按分数</button>
+            <button class="pill" data-value="release">按发布时间</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPU Single -->
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="icon icon-cpu">⚡</span>CPU 单核性能<span class="chip-count" id="cpuSingleCount"></span></h3>
+      </div>
+      <div class="chart-wrapper">
+        <div class="chart-inner" id="cpuSingleWrapper">
+          <canvas id="cpuSingle"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPU Multi -->
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="icon icon-cpu">⚡</span>CPU 多核性能<span class="chip-count" id="cpuMultiCount"></span></h3>
+      </div>
+      <div class="chart-wrapper">
+        <div class="chart-inner" id="cpuMultiWrapper">
+          <canvas id="cpuMulti"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- GPU -->
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="icon icon-gpu">🎮</span>GPU Metal 性能<span class="chip-count" id="gpuScoreCount"></span></h3>
+      </div>
+      <div class="chart-wrapper">
+        <div class="chart-inner" id="gpuScoreWrapper">
+          <canvas id="gpuScore"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="icon icon-table">📱</span>芯片与产品对应表</h3>
+      </div>
+      <div class="product-table-wrapper">
+        <table>
+          <thead>
+            <tr><th>芯片</th><th>搭载产品</th></tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Score Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="icon icon-table">📊</span>完整跑分数据</h3>
+      </div>
+      <!-- Desktop: Table -->
+      <div class="table-wrapper score-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>芯片版本</th>
+              <th>CPU 单核</th>
+              <th>CPU 多核</th>
+              <th>GPU Metal</th>
+              <th>测试设备</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody id="scoreTable"></tbody>
+        </table>
+      </div>
+      <!-- Mobile: Cards -->
+      <div class="score-cards" id="scoreCards"></div>
+      <div class="notes">
+        <div class="notes-title">📝 数据说明</div>
+        <div class="notes-list">
+          <div>所有跑分均为 Geekbench 6 基准测试（CPU + Metal GPU）</div>
+          <div>CPU 单核/多核分数为 Geekbench Browser 上该机型的用户平均值</div>
+          <div>GPU Metal 分数来自 Geekbench Metal Benchmark Chart，带 <span class="approx">~</span> 前缀的为推算参考值</div>
+          <div>M5 系列于 2025 年 10 月（基础 M5）和 2026 年 3 月（M5 Pro/Max）发布，部分数据基于早期评测</div>
+          <div>同一芯片在不同设备中因散热差异，实际分数会有 ±3% 左右浮动</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    数据来源：<a href="https://browser.geekbench.com" target="_blank">Geekbench Browser</a>
+  </footer>
+
+  <script>
+    const data = [
+      { chip: "M1", variant: "8C 7G", cpuSingle: 2347, cpuMulti: 8342, gpuScore: 30000, device: "MacBook Air (Late 2020) 7核GPU版", note: "GPU 略低于 8 核版", gpuApprox: true },
+      { chip: "M1", variant: "8C 8G", cpuSingle: 2366, cpuMulti: 8441, gpuScore: 31313, device: "Mac mini (Late 2020)", note: "iMac 24\" 同芯片约 2349/8400" },
+      { chip: "M1 Pro", variant: "8C 14G", cpuSingle: 2360, cpuMulti: 10200, gpuScore: 52000, device: "MacBook Pro 14\" (2021) 8核CPU版", note: "8 核 CPU 为阉割版", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M1 Pro", variant: "10C 14G", cpuSingle: 2385, cpuMulti: 12348, gpuScore: 62058, device: "MacBook Pro 14\" (2021) 10核CPU版", note: "—" },
+      { chip: "M1 Pro", variant: "10C 16G", cpuSingle: 2374, cpuMulti: 12259, gpuScore: 64000, device: "MacBook Pro 16\" (2021)", note: "16 核 GPU 版，GPU 略高", gpuApprox: true },
+      { chip: "M1 Max", variant: "10C 24G", cpuSingle: 2385, cpuMulti: 12259, gpuScore: 95000, device: "MacBook Pro 14\"/16\" (2021)", note: "24 核 GPU 版", gpuApprox: true },
+      { chip: "M1 Max", variant: "10C 32G", cpuSingle: 2419, cpuMulti: 12400, gpuScore: 112184, device: "Mac Studio (2022)", note: "MBP 16\" 约 2374/12259" },
+      { chip: "M1 Ultra", variant: "20C 48G", cpuSingle: 2398, cpuMulti: 18438, gpuScore: 135000, device: "Mac Studio (2022)", note: "48 核 GPU 版", gpuApprox: true },
+      { chip: "M1 Ultra", variant: "20C 64G", cpuSingle: 2398, cpuMulti: 18438, gpuScore: 161994, device: "Mac Studio (2022)", note: "CPU 与 48G 版相同" },
+      { chip: "M2", variant: "8C 8G", cpuSingle: 2600, cpuMulti: 9900, gpuScore: 42000, device: "MacBook Pro 13\" (2022)", note: "8 核 GPU 基础版", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M2", variant: "8C 9G", cpuSingle: 2588, cpuMulti: 9800, gpuScore: 43000, device: "MacBook Air (2022) 9核GPU版", note: "9 核 GPU 中间配置", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M2", variant: "8C 10G", cpuSingle: 2642, cpuMulti: 10100, gpuScore: 43597, device: "Mac mini (2023)", note: "MBA 15\" 约 2597", cpuMultiApprox: true },
+      { chip: "M2 Pro", variant: "10C 16G", cpuSingle: 2658, cpuMulti: 12300, gpuScore: 70000, device: "Mac mini (2023) 10核CPU版", note: "—", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M2 Pro", variant: "12C 19G", cpuSingle: 2661, cpuMulti: 14500, gpuScore: 78192, device: "Mac mini (2023) 12核CPU版", note: "MBP 16\" 约 2642" },
+      { chip: "M2 Max", variant: "12C 30G", cpuSingle: 2749, cpuMulti: 14743, gpuScore: 115000, device: "MacBook Pro 16\" (2023) 30核GPU版", note: "—", gpuApprox: true },
+      { chip: "M2 Max", variant: "12C 38G", cpuSingle: 2805, cpuMulti: 14913, gpuScore: 133587, device: "Mac Studio (2023)", note: "MBP 约 2749/14743" },
+      { chip: "M2 Ultra", variant: "24C 60G", cpuSingle: 2778, cpuMulti: 21413, gpuScore: 180000, device: "Mac Studio / Mac Pro (2023)", note: "60 核 GPU 版", gpuApprox: true },
+      { chip: "M2 Ultra", variant: "24C 76G", cpuSingle: 2778, cpuMulti: 21413, gpuScore: 209976, device: "Mac Studio / Mac Pro (2023)", note: "CPU 与 60G 版相同" },
+      { chip: "M3", variant: "8C 8G", cpuSingle: 3037, cpuMulti: 11800, gpuScore: 44000, device: "iMac 24\" (2023) 8核GPU版", note: "—", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M3", variant: "8C 10G", cpuSingle: 3076, cpuMulti: 12100, gpuScore: 46360, device: "MacBook Pro 14\" (Nov 2023)", note: "iMac 约 3041", cpuMultiApprox: true },
+      { chip: "M3 Pro", variant: "11C 14G", cpuSingle: 3089, cpuMulti: 14500, gpuScore: 65000, device: "MacBook Pro 14\" (Nov 2023) 11核CPU版", note: "—", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M3 Pro", variant: "12C 18G", cpuSingle: 3105, cpuMulti: 15260, gpuScore: 74403, device: "MacBook Pro 14\"/16\" (Nov 2023)", note: "—" },
+      { chip: "M3 Max", variant: "14C 30G", cpuSingle: 3127, cpuMulti: 18951, gpuScore: 120000, device: "MacBook Pro 14\"/16\" (Nov 2023)", note: "—", gpuApprox: true },
+      { chip: "M3 Max", variant: "16C 40G", cpuSingle: 3128, cpuMulti: 20962, gpuScore: 143820, device: "MacBook Pro 16\" (Nov 2023)", note: "14\" 约 3102/20933" },
+      { chip: "M3 Ultra", variant: "28C 60G", cpuSingle: 3212, cpuMulti: 26547, gpuScore: 195000, device: "Mac Studio (2025) 28核CPU版", note: "—", gpuApprox: true },
+      { chip: "M3 Ultra", variant: "32C 80G", cpuSingle: 3202, cpuMulti: 27736, gpuScore: 230509, device: "Mac Studio (2025) 32核CPU版", note: "—" },
+      { chip: "M4", variant: "9C 10G", cpuSingle: 3682, cpuMulti: 13800, gpuScore: 50000, device: "iMac 24\" (2024) 低配版", note: "实际 8+1 阉割核心", cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M4", variant: "10C 8G", cpuSingle: 3697, cpuMulti: 14739, gpuScore: 50000, device: "MacBook Air 13\" (2025) 8核GPU版", note: "—", gpuApprox: true },
+      { chip: "M4", variant: "10C 10G", cpuSingle: 3788, cpuMulti: 14919, gpuScore: 54728, device: "Mac mini (2024) / MBP 14\" (2024)", note: "MBP 约 3754" },
+      { chip: "M4 Pro", variant: "12C 16G", cpuSingle: 3853, cpuMulti: 20296, gpuScore: 90000, device: "Mac mini (2024) / MBP 14\" (2024)", note: "—", gpuApprox: true },
+      { chip: "M4 Pro", variant: "14C 20G", cpuSingle: 3877, cpuMulti: 22503, gpuScore: 105417, device: "MacBook Pro 16\" (2024)", note: "mini 约 3821/22408" },
+      { chip: "M4 Max", variant: "14C 32G", cpuSingle: 3919, cpuMulti: 23133, gpuScore: 179237, device: "MBP 16\" (2024) / Mac Studio (2025)", note: "Studio 约 4015/23574" },
+      { chip: "M4 Max", variant: "16C 40G", cpuSingle: 3915, cpuMulti: 25707, gpuScore: 204000, device: "MBP 16\" (2024) / Mac Studio (2025)", note: "Studio 约 4028/26175", gpuApprox: true },
+      { chip: "M5", variant: "9C 10G", cpuSingle: 4100, cpuMulti: 15000, gpuScore: 70000, device: "MacBook Air 13\" (2026) 低配版", note: "早期结果推算", cpuSingleApprox: true, cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M5", variant: "10C 8G", cpuSingle: 4200, cpuMulti: 16500, gpuScore: 70000, device: "MacBook Air 13\" (2026) 8核GPU版", note: "早期评测推算", cpuSingleApprox: true, cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M5", variant: "10C 10G", cpuSingle: 4227, cpuMulti: 17457, gpuScore: 74935, device: "MacBook Pro 14\" (2025)", note: "MBA 约 4195/17000" },
+      { chip: "M5 Pro", variant: "15C 16G", cpuSingle: 4200, cpuMulti: 24000, gpuScore: 105000, device: "MacBook Pro 14\" (2026) 15核CPU版", note: "早期数据有限", cpuSingleApprox: true, cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M5 Pro", variant: "18C 20G", cpuSingle: 4242, cpuMulti: 28111, gpuScore: 129842, device: "MacBook Pro 14\"/16\" (2026)", note: "早期 Geekbench 结果" },
+      { chip: "M5 Max", variant: "18C 32G", cpuSingle: 4260, cpuMulti: 29000, gpuScore: 170000, device: "MacBook Pro 14\" (2026) 32核GPU版", note: "早期泄露结果推算", cpuSingleApprox: true, cpuMultiApprox: true, gpuApprox: true },
+      { chip: "M5 Max", variant: "18C 40G", cpuSingle: 4268, cpuMulti: 29233, gpuScore: 212020, device: "MacBook Pro 16\" (2026)", note: "Metal 另有记录约 232,718" }
+    ];
+
+    const productMap = {
+      'M1': 'MacBook Air (2020), MacBook Pro 13" (2020), Mac mini (2020), iMac 24" (2021), iPad Pro (2021), iPad Air 5 (2022)',
+      'M1 Pro': 'MacBook Pro 14"/16" (2021)',
+      'M1 Max': 'MacBook Pro 14"/16" (2021), Mac Studio (2022)',
+      'M1 Ultra': 'Mac Studio (2022)',
+      'M2': 'MacBook Air 13"/15" (2022-23), MacBook Pro 13" (2022), Mac mini (2023), iPad Pro (2022), Vision Pro (2024)',
+      'M2 Pro': 'Mac mini (2023), MacBook Pro 14"/16" (2023)',
+      'M2 Max': 'MacBook Pro 14"/16" (2023), Mac Studio (2023)',
+      'M2 Ultra': 'Mac Studio (2023), Mac Pro (2023)',
+      'M3': 'MacBook Air 13"/15" (2024), MacBook Pro 14" (2023), iMac 24" (2023)',
+      'M3 Pro': 'MacBook Pro 14"/16" (2023)',
+      'M3 Max': 'MacBook Pro 14"/16" (2023)',
+      'M3 Ultra': 'Mac Studio (2025)',
+      'M4': 'iPad Pro (2024), MacBook Pro 14" (2024), Mac mini (2024), iMac 24" (2024), MacBook Air (2025)',
+      'M4 Pro': 'Mac mini (2024), MacBook Pro 14"/16" (2024)',
+      'M4 Max': 'MacBook Pro 14"/16" (2024), Mac Studio (2025)',
+      'M5': 'MacBook Pro 14" (2025), MacBook Air (2026), iPad Pro (2025), Vision Pro (M5)',
+      'M5 Pro': 'MacBook Pro 14"/16" (2026)',
+      'M5 Max': 'MacBook Pro 14"/16" (2026)'
+    };
+
+    const releaseYear = {
+      'M1': 2020, 'M1 Pro': 2021, 'M1 Max': 2021, 'M1 Ultra': 2022,
+      'M2': 2022, 'M2 Pro': 2023, 'M2 Max': 2023, 'M2 Ultra': 2023,
+      'M3': 2023, 'M3 Pro': 2023, 'M3 Max': 2023, 'M3 Ultra': 2025,
+      'M4': 2024, 'M4 Pro': 2024, 'M4 Max': 2024,
+      'M5': 2025, 'M5 Pro': 2026, 'M5 Max': 2026
+    };
+
+    // Chart.js config
+    Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = '#8b95a5';
+
+    // State
+    let currentTier = 'all';
+    let currentSort = 'score';
+    let charts = { cpuSingle: null, cpuMulti: null, gpuScore: null };
+
+    function tierOf(chip) {
+      if (chip.includes('Ultra')) return 'ultra';
+      if (chip.includes('Max')) return 'max';
+      if (chip.includes('Pro')) return 'pro';
+      return 'base';
+    }
+
+    function labelFor(item) {
+      return item.variant ? `${item.chip} (${item.variant})` : item.chip;
+    }
+
+    function formatScore(val, approx) {
+      if (val === null || val === undefined) return '-';
+      const formatted = val.toLocaleString();
+      return approx ? `~${formatted}` : formatted;
+    }
+
+    function getGradient(ctx, color1, color2, horizontal = true) {
+      const gradient = horizontal 
+        ? ctx.createLinearGradient(0, 0, ctx.canvas.width, 0)
+        : ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      gradient.addColorStop(0, color2);
+      gradient.addColorStop(1, color1);
+      return gradient;
+    }
+
+    function makeChart(canvasId, sortedData, key, colors, maxValue) {
+      const canvas = document.getElementById(canvasId);
+      const wrapper = document.getElementById(canvasId + 'Wrapper');
+      const ctx = canvas.getContext('2d');
+      
+      // Dynamic height based on data count (32px per bar minimum)
+      const barHeight = Math.max(28, Math.min(36, 400 / sortedData.length));
+      const chartHeight = Math.max(300, sortedData.length * barHeight + 40);
+      wrapper.style.height = chartHeight + 'px';
+      canvas.style.height = chartHeight + 'px';
+      
+      const labels = sortedData.map(labelFor);
+      const values = sortedData.map(d => ({ x: d[key], y: labelFor(d), rawItem: d }));
+      
+      const approxKey = key === 'cpuSingle' ? 'cpuSingleApprox' : key === 'cpuMulti' ? 'cpuMultiApprox' : 'gpuApprox';
+
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: getGradient(ctx, colors[0], colors[1], true),
+            borderRadius: 4,
+            borderSkipped: false,
+            barThickness: Math.max(16, barHeight - 12)
+          }]
+        },
+        options: {
+          indexAxis: 'y', // Horizontal bars
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'nearest', axis: 'y', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 20, 35, 0.95)',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              cornerRadius: 8,
+              padding: 12,
+              titleFont: { size: 13, weight: '600' },
+              bodyFont: { size: 12 },
+              callbacks: {
+                title: (items) => items[0]?.raw?.rawItem ? labelFor(items[0].raw.rawItem) : '',
+                label: (ctx) => {
+                  const item = ctx.raw?.rawItem;
+                  if (!item) return '';
+                  const score = formatScore(item[key], item[approxKey]);
+                  return `分数: ${score}`;
+                },
+                afterLabel: (ctx) => {
+                  const item = ctx.raw?.rawItem;
+                  if (!item) return [];
+                  const lines = [];
+                  if (item.device) lines.push(`设备: ${item.device}`);
+                  if (item.note && item.note !== '—') lines.push(`备注: ${item.note}`);
+                  return lines;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: { 
+                color: '#c5cdd8', 
+                font: { size: 11, weight: '500' },
+                padding: 8
+              },
+              grid: { display: false }
+            },
+            x: {
+              position: 'top',
+              max: maxValue,
+              ticks: { 
+                color: '#8b95a5', 
+                font: { size: 10 },
+                callback: (v) => v >= 1000 ? (v/1000) + 'k' : v
+              },
+              grid: { color: 'rgba(255, 255, 255, 0.04)' }
+            }
+          }
+        }
+      });
+    }
+
+    function applyFilters() {
+      let filtered = data.filter(d => {
+        if (currentTier === 'all') return true;
+        return tierOf(d.chip) === currentTier;
+      });
+      return filtered.map(d => ({ ...d, year: releaseYear[d.chip] || 0 }));
+    }
+
+    function sortData(arr, key) {
+      return arr
+        .filter(d => d[key] !== null && d[key] !== undefined)
+        .sort((a, b) => {
+          if (currentSort === 'release') {
+            return a.year - b.year || a[key] - b[key];
+          }
+          return b[key] - a[key];
+        });
+    }
+
+    function renderCharts() {
+      const filtered = applyFilters();
+      
+      Object.values(charts).forEach(c => c && c.destroy());
+
+      const cpuSingleData = sortData(filtered, 'cpuSingle');
+      const cpuMultiData = sortData(filtered, 'cpuMulti');
+      const gpuData = sortData(filtered, 'gpuScore');
+
+      // Update count badges
+      document.getElementById('cpuSingleCount').textContent = cpuSingleData.length;
+      document.getElementById('cpuMultiCount').textContent = cpuMultiData.length;
+      document.getElementById('gpuScoreCount').textContent = gpuData.length;
+
+      charts.cpuSingle = makeChart('cpuSingle', cpuSingleData, 'cpuSingle', ['rgba(99, 102, 241, 0.9)', 'rgba(99, 102, 241, 0.5)'], 5000);
+      charts.cpuMulti = makeChart('cpuMulti', cpuMultiData, 'cpuMulti', ['rgba(34, 211, 238, 0.9)', 'rgba(34, 211, 238, 0.5)'], 35000);
+      charts.gpuScore = makeChart('gpuScore', gpuData, 'gpuScore', ['rgba(236, 72, 153, 0.9)', 'rgba(236, 72, 153, 0.5)'], 250000);
+    }
+
+    function buildProductTable() {
+      const tbody = document.getElementById('productTable');
+      tbody.innerHTML = '';
+      const chips = [...new Set(data.map(d => d.chip))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+      chips.forEach(chip => {
+        const tr = document.createElement('tr');
+        const tier = tierOf(chip);
+        tr.innerHTML = `
+          <td><span class="chip-badge"><span class="tier-dot tier-${tier}"></span>${chip}</span></td>
+          <td>${productMap[chip] || '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function buildScoreTable() {
+      // Desktop table
+      const tbody = document.getElementById('scoreTable');
+      tbody.innerHTML = '';
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        const tier = tierOf(item.chip);
+        tr.innerHTML = `
+          <td><span class="chip-badge"><span class="tier-dot tier-${tier}"></span>${labelFor(item)}</span></td>
+          <td class="${item.cpuSingleApprox ? 'approx' : ''}">${formatScore(item.cpuSingle, item.cpuSingleApprox)}</td>
+          <td class="${item.cpuMultiApprox ? 'approx' : ''}">${formatScore(item.cpuMulti, item.cpuMultiApprox)}</td>
+          <td class="${item.gpuApprox ? 'approx' : ''}">${formatScore(item.gpuScore, item.gpuApprox)}</td>
+          <td>${item.device || '—'}</td>
+          <td>${item.note || '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Mobile cards
+      const cardsContainer = document.getElementById('scoreCards');
+      cardsContainer.innerHTML = '';
+      data.forEach(item => {
+        const tier = tierOf(item.chip);
+        const card = document.createElement('div');
+        card.className = 'score-card';
+        card.innerHTML = `
+          <div class="score-card-header">
+            <span class="score-card-title"><span class="chip-badge"><span class="tier-dot tier-${tier}"></span>${labelFor(item)}</span></span>
+          </div>
+          <div class="score-card-grid">
+            <div class="score-item">
+              <div class="score-item-label">CPU 单核</div>
+              <div class="score-item-value ${item.cpuSingleApprox ? 'approx' : ''}">${formatScore(item.cpuSingle, item.cpuSingleApprox)}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-item-label">CPU 多核</div>
+              <div class="score-item-value ${item.cpuMultiApprox ? 'approx' : ''}">${formatScore(item.cpuMulti, item.cpuMultiApprox)}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-item-label">GPU</div>
+              <div class="score-item-value ${item.gpuApprox ? 'approx' : ''}">${formatScore(item.gpuScore, item.gpuApprox)}</div>
+            </div>
+          </div>
+          <div class="score-card-meta">
+            <span>📱 ${item.device || '—'}</span>
+            ${item.note && item.note !== '—' ? `<span>💬 ${item.note}</span>` : ''}
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    // Event handlers
+    document.getElementById('filterTier').addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('#filterTier .pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        currentTier = e.target.dataset.value;
+        renderCharts();
+      }
+    });
+
+    document.getElementById('sortMode').addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('#sortMode .pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        currentSort = e.target.dataset.value;
+        renderCharts();
+      }
+    });
+
+    // Hide tooltips on tap outside (mobile)
+    document.addEventListener('click', (e) => {
+      const isCanvas = e.target.tagName === 'CANVAS';
+      if (!isCanvas) {
+        Object.values(charts).forEach(chart => {
+          if (chart && chart.tooltip) {
+            chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+            chart.update('none');
+          }
+        });
+      }
+    });
+
+    // Init
+    buildProductTable();
+    buildScoreTable();
+    renderCharts();
+  </script>
+</body>
+</html>
