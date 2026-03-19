@@ -888,7 +888,20 @@
     function buildProductTable() {
       const tbody = document.getElementById('productTable');
       tbody.innerHTML = '';
-      const chips = [...new Set(data.map(d => d.chip))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+      const chips = [...new Set(data.map(d => d.chip))].sort((a, b) => {
+        const getSeries = (chip) => (chip.match(/M\d+/)?.[0] || '');
+        const rank = (chip) => {
+          if (chip.includes('Ultra')) return 3;
+          if (chip.includes('Max')) return 2;
+          if (chip.includes('Pro')) return 1;
+          return 0; // base
+        };
+        const seriesA = getSeries(a);
+        const seriesB = getSeries(b);
+        const seriesCmp = seriesA.localeCompare(seriesB, 'en', { numeric: true });
+        if (seriesCmp !== 0) return seriesCmp;
+        return rank(a) - rank(b);
+      });
       chips.forEach(chip => {
         const tr = document.createElement('tr');
         const tier = tierOf(chip);
